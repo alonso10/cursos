@@ -20,7 +20,10 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:unit": "jest \"test/unit/.*\\.spec\\.ts\"",
-    "test:e2e": "jest \"test/e2e/.*\\.e2e-spec\\.ts\""
+    "test:e2e": "jest \"test/e2e/.*\\.e2e-spec\\.ts\"",
+    "typeorm": "cross-env NODE_ENV=development ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --config ./src/infrastructure/configuration/orm.config.ts",
+    "typeorm:migrate": "npm run typeorm migration:generate -- -n",
+    "typeorm:run": "npm run typeorm migration:run"
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",

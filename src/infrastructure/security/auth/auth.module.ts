@@ -4,6 +4,7 @@ import { PassportModule } from "@nestjs/passport";
 import { UserProviderModule } from "src/infrastructure/user/provider/user.provider.module";
 import { AuthService } from "./auth.service";
 import { jwtContanst } from "./contants";
+import { JwtStrategy } from "./strategies/jwt.strategy";
 import { LocalStrategy } from "./strategies/local.strategy";
 
 @Global()
@@ -18,7 +19,7 @@ import { LocalStrategy } from "./strategies/local.strategy";
             },
         }),
     ],
-    providers: [AuthService, LocalStrategy],
+    providers: [AuthService, LocalStrategy, JwtStrategy],
     exports: [AuthService]
 })
 export class AuthModule { }
