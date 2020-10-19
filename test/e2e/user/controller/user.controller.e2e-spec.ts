@@ -1,5 +1,7 @@
 import * as request from 'supertest';
+import * as bcrypt from 'bcrypt';
 import { HttpStatus, INestApplication } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import { createSandbox, SinonStubbedInstance } from 'sinon';
 import { name, internet, random } from "faker";
@@ -13,20 +15,17 @@ import { userRegisterServiceProvider } from 'src/infrastructure/user/provider/se
 import { createStubObj } from 'test/utils/stubs/creaye-object.stub';
 import { AuthService } from 'src/infrastructure/security/auth/auth.service';
 import { LocalStrategy } from 'src/infrastructure/security/auth/strategies/local.strategy';
-import { PassportModule } from '@nestjs/passport';
 import UserBuilder from 'test/utils/builders/user.builder';
 
 const sinonSandbox = createSandbox();
 
 describe('Testing user controller', () => {
 
-    let app: INestApplication;    
+    let app: INestApplication;
     let userRepository: SinonStubbedInstance<UserRepository>;
-    let authService: SinonStubbedInstance<AuthService>;
 
     beforeAll(async () => {
         userRepository = createStubObj<UserRepository>(['findByEmail', 'save'], sinonSandbox);
-        authService = createStubObj<AuthService>(['login', 'validateUser'], sinonSandbox);
         const moduleRef = await Test.createTestingModule({
             controllers: [UserController],
             providers: [
@@ -37,10 +36,12 @@ describe('Testing user controller', () => {
                 },
                 { provide: UserRepository, useValue: userRepository },
                 UserRegisterHandler,
-                { provide: AuthService, useValue: authService },
+                {
+                    provide: JwtService, useValue: { sign: () => '123456789' },
+                },
+                AuthService,
                 LocalStrategy,
-            ],
-            imports: [PassportModule]
+            ]
         }).compile();
 
         app = moduleRef.createNestApplication();
@@ -56,8 +57,8 @@ describe('Testing user controller', () => {
         await app.close();
     });
 
-    
-    it('should throw exception `User is too younger`', async () => {        
+
+    it('should throw exception `User is too younger`', async () => {
         const userRegisterCommand: UserRegisterCommand = {
             name: name.findName(),
             email: internet.email(),
@@ -73,7 +74,7 @@ describe('Testing user controller', () => {
         expect(response.body.statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
-    it('should create user successfully', async () => {        
+    it('should create user successfully', async () => {
         const userRegisterCommand: UserRegisterCommand = {
             name: name.findName(),
             email: internet.email(),
@@ -85,33 +86,35 @@ describe('Testing user controller', () => {
         const response = await request(app.getHttpServer())
             .post('/users').send(userRegisterCommand)
             .expect(HttpStatus.CREATED);
-        expect(response.body.message).toBe(message);        
+        expect(response.body.message).toBe(message);
     });
 
     it('should return access token', async () => {
         const body = {
             email: internet.email(),
-            password: random.alphaNumeric(10),
+            password: '12345678',
         }
-        const user = new UserBuilder().withBirthDate(new Date(2000, 10, 10)).build();
-        authService.login.returns(Promise.resolve({ accessToken: '123456789' }));
-        authService.validateUser.returns(Promise.resolve(user));
+        const passwordMock = bcrypt.hashSync(body.password, 12);
+        const user = new UserBuilder()
+            .withBirthDate(new Date(2000, 10, 10))
+            .withPassword(passwordMock)
+            .build();
+        userRepository.findByEmail.returns(Promise.resolve(user));
         const response = await request(app.getHttpServer())
             .post('/users/auth/login').send(body)
             .expect(HttpStatus.CREATED);
-        expect(response.body).toEqual({ accessToken: '123456789' });        
+        expect(response.body).toEqual({ accessToken: '123456789' });
     });
 
     it('should return unauthorized errror', async () => {
         const body = {
             email: internet.email(),
             password: random.alphaNumeric(10),
-        }
-        authService.validateUser.returns(Promise.resolve(null));
+        }        
         const response = await request(app.getHttpServer())
             .post('/users/auth/login').send(body)
             .expect(HttpStatus.UNAUTHORIZED);
-        expect(response.body.message).toBe('Unauthorized');        
+        expect(response.body.message).toBe('Unauthorized');
     });
-    
+
 });
