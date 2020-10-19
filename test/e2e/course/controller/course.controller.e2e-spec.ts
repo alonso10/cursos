@@ -8,6 +8,8 @@ import { CourseRepository } from 'src/domain/course/course.repository';
 import { CourseController } from 'src/infrastructure/course/controller/course.controller';
 import { CourseListHandler } from 'src/application/course/query/course.list.handler';
 import { JwtAuthGuard } from 'src/infrastructure/security/auth/guards/jwt-auth.guard';
+import { JwtStrategy } from 'src/infrastructure/security/auth/strategies/jwt.strategy';
+import { PassportModule } from '@nestjs/passport';
 
 const sinonSandbox = createSandbox();
 
@@ -23,12 +25,18 @@ describe('Testing user controller', () => {
             providers: [
                 { provide: CourseRepository, useValue: _courseRepository },
                 CourseListHandler,
+                {
+                    provide: JwtStrategy,
+                    useValue: {
+                        validate: () => ({ userId: "abc123", email: 'test@test.com' })
+                    }
+                },
             ]
         }).overrideGuard(JwtAuthGuard)
             .useValue({
                 canActivate: (context: ExecutionContext) => {
                     const req = context.switchToHttp().getRequest();
-                    req.user = { user_id: "abc123" }
+                    req.user = { userId: "abc123", email: 'test@test.com' }
                     return true
                 },
             }).compile();
