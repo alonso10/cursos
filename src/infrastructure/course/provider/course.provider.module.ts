@@ -3,7 +3,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { CourseListHandler } from "src/application/course/query/course.list.handler";
 import { CourseRepository } from "src/domain/course/course.repository";
 import { CourseEntity } from "../entity/course.entity";
-import { courseRepositoryProvider } from "./repository/course.repository.provicer";
+import { courseRepositoryProvider } from "./repository/course.repository.provider";
 
 @Module({
     imports: [TypeOrmModule.forFeature([CourseEntity])],
