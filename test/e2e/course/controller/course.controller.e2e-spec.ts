@@ -9,7 +9,6 @@ import { CourseController } from 'src/infrastructure/course/controller/course.co
 import { CourseListHandler } from 'src/application/course/query/course.list.handler';
 import { JwtAuthGuard } from 'src/infrastructure/security/auth/guards/jwt-auth.guard';
 import { JwtStrategy } from 'src/infrastructure/security/auth/strategies/jwt.strategy';
-import { PassportModule } from '@nestjs/passport';
 
 const sinonSandbox = createSandbox();
 
