@@ -22,7 +22,7 @@ export default class UserController {
     @UseGuards(LocalAuthGuard)
     @Post('auth/login')
     async login(@Req() request: Request) {
-        return this.authService.login(request.user);
+        return await this.authService.login(request.user);
     }
 
 }

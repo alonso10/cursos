@@ -5,6 +5,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { databaseConfigFactory } from "./configuration/database.config";
 import { NodeEnv } from "./configuration/environment/env-node.enum";
 import { CourseModule } from "./course/course.module";
+import { OrderModule } from "./order/order.module";
 import { AuthModule } from "./security/auth/auth.module";
 import { UserModule } from "./user/user.module";
 
@@ -27,6 +28,7 @@ import { UserModule } from "./user/user.module";
         AuthModule,
         UserModule,
         CourseModule,
+        OrderModule,
     ],
 })
 export class InfrastructureModule { }

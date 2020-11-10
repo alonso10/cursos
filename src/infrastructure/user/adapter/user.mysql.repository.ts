@@ -15,7 +15,7 @@ export class UserMysqlRepository implements UserRepository {
     ) { }
 
     async findByEmail(email: string): Promise<Nullable<User>> {
-        const userFinded = await this.repository.findOne({ where: { email } });
+        const userFinded = await this.repository.findOne({ where: { email } });        
         if (userFinded) {
             return new User(
                 userFinded.id,

@@ -16,13 +16,12 @@ export class Order {
         userId: number,
         courseId: number,
         dateBuy: Date,
-        status: number,
     ) {
         this.id = id;
         this.userId = userId;
         this.courseId = courseId;
         this.dateBuy = dateBuy;
-        this.status = status;
+        this.status = this.isActive() ? StatusOrder.active : StatusOrder.inactive;
     }
 
     public isActive(): boolean {

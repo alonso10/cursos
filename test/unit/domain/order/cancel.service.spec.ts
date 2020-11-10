@@ -11,7 +11,7 @@ describe('Order cancel service', () => {
     let _order: Order;
 
     beforeEach(() => {
-        _orderRepositryStub = createStubObj<OrderRepository>(['store', 'updateById', 'updateStatusById', 'listByUserId']);
+        _orderRepositryStub = createStubObj<OrderRepository>(['store', 'updateStatusById', 'fetchByName']);
         _orderCancelService = new OrderCancelService(_orderRepositryStub);        
     });
 
